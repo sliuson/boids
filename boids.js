@@ -5,7 +5,7 @@ function setup(){
   fill(255);
   background(0); 
   createCanvas(1000,800);
-  for(let i = 0; i < 100; i ++){
+  for(let i = 0; i < 200; i ++){
     let randPos = createVector(random(0,width),random(0,height));
     let randAngle = random(0,2*PI);
     flock.push(new Boid(randPos, randAngle));
@@ -25,20 +25,11 @@ function setup(){
 function draw(){
   background(0);
   updateMouseObstacle();
-  let n = 0;
+    stroke(255);
   for (let boid of flock){
-    
-    //track one boid
-    if(n % flock.length == 2){
-      stroke(0,0,255);
-      strokeWeight(10);
-    }else{
-      strokeWeight(2);
-      stroke(255);
-    }
     boid.movement();
     boid.display();
-    n++;
+
   }
 }
 
@@ -52,16 +43,20 @@ class Boid{
   
   constructor(pos,  headingAngle){
     this.speed = 3;
-    this.turnSpeed = 0.5;
-    this.localRadius = 70;
-    this.seperationRadius = 15;
+    this.maxTurnSpeed = 0.5;
+    this.localRadius = 100;
+    this.seperationRadius = 20;
     this.localObstacleRadius = 70;
-    this.cohesionWeight = 0.05;
-    this.seperationWeight = 0.1;
-    this.alignmentWeight = 0.06;
-    this.obstacleAvoidanceWeight = 0.1;
+
+    this.cohesionWeight = 10;
+    this.seperationWeight = 20;
+    this.alignmentWeight = 14;
+    this.obstacleAvoidanceWeight = 30;
+
     this.pos = pos;
     this.headingAngle = headingAngle;
+    
+    
   }
   seperation(){
     
@@ -116,6 +111,7 @@ class Boid{
     let awayFromObCMAngle = atan2(toObCM.y,toObCM.x)+PI;
     return this.getTurnDirection(awayFromObCMAngle);
   }
+  //returns -1 < x < 1 based on how magnitude and direction of angle displacement.
   getTurnDirection(targetAngle){
     if(this.headingAngle == targetAngle){
       return 0;
@@ -127,19 +123,27 @@ class Boid{
       diff += (2*PI);
     }
     if(diff > PI){
-        return -(2*PI - diff);
+        return -(2*PI - diff)/PI;
     }else if (diff < PI){
-       return diff;
+        
+       return diff/PI;
+       
     }
     return 0;
   }
   movement(){
-    this.headingAngle += this.cohesion()*this.turnSpeed*this.cohesionWeight;
-    this.headingAngle += this.alignment()*this.turnSpeed*this.alignmentWeight;
-    this.headingAngle += this.seperation()*this.turnSpeed*this.seperationWeight;
-    this.headingAngle += this.avoidObstacles()*this.turnSpeed*this.obstacleAvoidanceWeight;
-    let heading =  createVector(cos(this.headingAngle),sin(this.headingAngle));
-    let vel = p5.Vector.mult(heading,this.speed);
+    let turn = 0;
+    turn += this.cohesion()*this.cohesionWeight;
+    turn += this.alignment()*this.alignmentWeight;
+    turn += this.seperation()*this.seperationWeight;
+    turn += this.avoidObstacles()*this.obstacleAvoidanceWeight;
+    
+    let totalWeight = this.cohesionWeight + this.alignmentWeight + this.seperationWeight + this.obstacleAvoidanceWeight;
+
+    this.headingAngle += map(turn, -totalWeight,totalWeight,-this.maxTurnSpeed,this.maxTurnSpeed);
+
+    let headingVector =  createVector(cos(this.headingAngle),sin(this.headingAngle));
+    let vel = p5.Vector.mult(headingVector,this.speed);
     this.pos.add(vel);
     
   }
@@ -175,10 +179,17 @@ class Boid{
   }
   
    display(){
-    let arrowLength = 23;
-    let heading = createVector(cos(this.headingAngle)*arrowLength,sin(this.headingAngle)*arrowLength);
-    ellipse(this.pos.x,this.pos.y,5,5);
-    line(this.pos.x,this.pos.y,this.pos.x+heading.x,this.pos.y+heading.y);
+    let diameter = 10;
+    let arrowLength = 15;
+    let arrowWidth = diameter;
+    let tipOffset = createVector(cos(this.headingAngle)*arrowLength,sin(this.headingAngle)*arrowLength);
+    fill(random(0,255),random(0,255),random(0,255))
+    stroke(random(0,255),random(0,255),random(0,255))
+    ellipse(this.pos.x,this.pos.y,diameter,diameter);
+    let rightOffset = createVector(cos(this.headingAngle+ PI/2)*arrowWidth/2,sin(this.headingAngle+PI/2)*arrowWidth/2);
+    let leftOffset = createVector(cos(this.headingAngle- PI/2)*arrowWidth/2,sin(this.headingAngle-PI/2)*arrowWidth/2);
+
+    triangle(this.pos.x+tipOffset.x,this.pos.y+tipOffset.y, this.pos.x+rightOffset.x,this.pos.y+rightOffset.y, this.pos.x+leftOffset.x,this.pos.y+leftOffset.y);
   }
   
 }
