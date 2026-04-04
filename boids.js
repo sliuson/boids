@@ -183,8 +183,7 @@ class Boid{
     let arrowLength = 15;
     let arrowWidth = diameter;
     let tipOffset = createVector(cos(this.headingAngle)*arrowLength,sin(this.headingAngle)*arrowLength);
-    fill(random(0,255),random(0,255),random(0,255))
-    stroke(random(0,255),random(0,255),random(0,255))
+    
     ellipse(this.pos.x,this.pos.y,diameter,diameter);
     let rightOffset = createVector(cos(this.headingAngle+ PI/2)*arrowWidth/2,sin(this.headingAngle+PI/2)*arrowWidth/2);
     let leftOffset = createVector(cos(this.headingAngle- PI/2)*arrowWidth/2,sin(this.headingAngle-PI/2)*arrowWidth/2);
