@@ -6,7 +6,7 @@ function setup(){
   stroke(255);
   fill(255);
   background(0); 
-  createCanvas(windowWidth-10,windowHeight-10);
+  createCanvas(windowWidth,windowHeight);
   canvasWidth = width;
   canvasHeight = height;
   for(let i = 0; i < 200; i ++){
@@ -37,7 +37,7 @@ function draw(){
   }
 }
 function windowResized(){
-    resizeCanvas(windowWidth-10, windowHeight-10);
+    resizeCanvas(windowWidth, windowHeight);
     for (let boid of flock){
       boid.pos = createVector(map(boid.pos.x,0,canvasWidth,0,width),map(boid.pos.y,0,canvasHeight,0,height));
           
