@@ -1,10 +1,14 @@
 let flock = [];
 let obstacles = [];
+let canvasWidth;
+let canvasHeight;
 function setup(){
   stroke(255);
   fill(255);
   background(0); 
-  createCanvas(1000,800);
+  createCanvas(windowWidth-10,windowHeight-10);
+  canvasWidth = width;
+  canvasHeight = height;
   for(let i = 0; i < 200; i ++){
     let randPos = createVector(random(0,width),random(0,height));
     let randAngle = random(0,2*PI);
@@ -32,7 +36,23 @@ function draw(){
 
   }
 }
-
+function windowResized(){
+    resizeCanvas(windowWidth-10, windowHeight-10);
+    for (let boid of flock){
+      boid.pos = createVector(map(boid.pos.x,0,canvasWidth,0,width),map(boid.pos.y,0,canvasHeight,0,height));
+          
+    }
+    obstacles = [];
+    let n = 100;
+  for(let i = 0; i < n; i ++){
+    obstacles.push(createVector(i*width/(n-1),0));
+    obstacles.push(createVector(i*width/(n-1),height));
+    obstacles.push(createVector(0, i*height/(n-1)));
+    obstacles.push(createVector(width, i*height/(n-1)));
+  }
+    canvasWidth = width;
+    canvasHeight = height;
+}
 function updateMouseObstacle(){
   obstacles.shift();
   obstacles.unshift(createVector(mouseX,mouseY));
